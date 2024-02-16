@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node --import=specifier-resolution-node/register src/index.js",
     "start-local": "GOOGLE_APPLICATION_CREDENTIALS=~/.config/gcloud/legacy_credentials/brace@brace.to/sdrive-001-adeb2f2dcdc2.json nodemon --import=specifier-resolution-node/register src/index.js",
-    "deploy": "gcloud run deploy sdrive-hub-tasker --source . --region=us-central1 --project=sdrive-001"
+    "deploy": "gcloud run deploy sdrive-hub-tasker --source . --no-allow-unauthenticated --no-traffic --region=us-central1 --project=sdrive-001"
   },
   "dependencies": {
     "@google-cloud/datastore": "^8.5.0",
