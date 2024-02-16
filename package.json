@@ -1,0 +1,21 @@
+{
+  "name": "sdrive-hub-tasker",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": "20.x.x"
+  },
+  "type": "module",
+  "scripts": {
+    "start": "node --import=specifier-resolution-node/register src/index.js",
+    "start-local": "GOOGLE_APPLICATION_CREDENTIALS=~/.config/gcloud/legacy_credentials/brace@brace.to/sdrive-001-adeb2f2dcdc2.json nodemon --import=specifier-resolution-node/register src/index.js",
+    "deploy": "gcloud run deploy sdrive-hub-tasker --source . --region=us-central1 --project=sdrive-001"
+  },
+  "dependencies": {
+    "@google-cloud/datastore": "^8.5.0",
+    "@google-cloud/storage": "^7.7.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "specifier-resolution-node": "^1.1.1"
+  }
+}
