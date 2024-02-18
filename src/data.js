@@ -12,8 +12,6 @@ const backupFile = async (logKey, path) => {
     const backupBucket = storage.bucket('sdrive-hub-backup')
     await bucketFile.copy(backupBucket, { predefinedAcl: 'private' });
   } catch (error) {
-    // Just log. Need to manually copy directly from Storage.
-    // This can retry at the task level, but saveFileLog cannot.
     console.error(`(${logKey}) Error performBackup: ${path}`, error);
   }
 };
@@ -27,32 +25,29 @@ const backupFiles = async (logKey, paths) => {
 };
 
 const saveFileLog = async (logKey, fileLog) => {
-  const { path, action, size, sizeChange } = fileLog;
+  const { path, action, size, sizeChange, createDT } = fileLog;
 
   let assoIssAddress = fileLog.assoIssAddress;
   if (!assoIssAddress) assoIssAddress = 'n/a';
 
-  const logData = [
+  const key = datastore.key([FILE_LOG, `${createDT}/${path}`]);
+  const data = [
     { name: 'path', value: path, excludeFromIndexes: true },
     { name: 'assoIssAddress', value: assoIssAddress, excludeFromIndexes: true },
     { name: 'action', value: action, excludeFromIndexes: true },
     { name: 'size', value: size, excludeFromIndexes: true },
     { name: 'sizeChange', value: sizeChange, excludeFromIndexes: true },
-    { name: 'createDate', value: new Date() },
+    { name: 'createDate', value: new Date(createDT) },
   ];
 
   try {
-    await datastore.save({ key: datastore.key([FILE_LOG]), data: logData });
+    await datastore.save({ key, data });
   } catch (error) {
-    // Just log. Can't just retry on the task, some might succeed, some might fail.
-    // Bucket size will be wrong, need to recal direclty from Storage.
     console.error(`(${logKey}) Error saveFileLog: ${path}`, error);
   }
 };
 
 const saveFileLogs = async (logKey, fileLogs) => {
-  // Order is important,
-  //   but it's unlikely to have same path with multiple fileLogs in the same request.
   const nItems = 10;
   for (let i = 0; i < fileLogs.length; i += nItems) {
     const selectedFileLogs = fileLogs.slice(i, i + nItems);
