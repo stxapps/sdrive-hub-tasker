@@ -30,7 +30,6 @@ const saveFileLog = async (logKey, fileLog) => {
   let assoIssAddress = fileLog.assoIssAddress;
   if (!assoIssAddress) assoIssAddress = 'n/a';
 
-  const key = datastore.key([FILE_LOG, `${createDT}/${path}`]);
   const data = [
     { name: 'path', value: path, excludeFromIndexes: true },
     { name: 'assoIssAddress', value: assoIssAddress, excludeFromIndexes: true },
@@ -41,7 +40,7 @@ const saveFileLog = async (logKey, fileLog) => {
   ];
 
   try {
-    await datastore.save({ key, data });
+    await datastore.save({ key: datastore.key([FILE_LOG]), data });
   } catch (error) {
     console.error(`(${logKey}) Error saveFileLog: ${path}`, error);
   }
