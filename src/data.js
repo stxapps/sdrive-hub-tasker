@@ -30,6 +30,11 @@ const saveFileLog = async (logKey, fileLog) => {
   let assoIssAddress = fileLog.assoIssAddress;
   if (!assoIssAddress) assoIssAddress = 'n/a';
 
+  // Cannot use auto-generated id as cloud task might rerun/retry.
+  // Do not use monotonically increasing values
+  // Do not use a forward slash
+  // Ref: cloud.google.com/datastore/docs/cloud-datastore-best-practices
+  const key = datastore.key([FILE_LOG, `${path}?createDT=${createDT}`]);
   const data = [
     { name: 'path', value: path, excludeFromIndexes: true },
     { name: 'assoIssAddress', value: assoIssAddress, excludeFromIndexes: true },
@@ -40,7 +45,7 @@ const saveFileLog = async (logKey, fileLog) => {
   ];
 
   try {
-    await datastore.save({ key: datastore.key([FILE_LOG]), data });
+    await datastore.save({ key, data });
   } catch (error) {
     console.error(`(${logKey}) Error saveFileLog: ${path}`, error);
   }
