@@ -33,7 +33,7 @@ const saveFileLog = async (logKey, fileLog) => {
   // Cannot use auto-generated id as cloud task might rerun/retry.
   // Do not use monotonically increasing values
   // Do not use a forward slash
-  // Ref: cloud.google.com/datastore/docs/cloud-datastore-best-practices
+  // Ref: cloud.google.com/datastore/docs/best-practices
   const key = datastore.key([FILE_LOG, `${path}?createDT=${createDT}`]);
   const data = [
     { name: 'path', value: path, excludeFromIndexes: true },
