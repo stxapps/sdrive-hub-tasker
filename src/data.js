@@ -2,17 +2,23 @@ import { Datastore } from '@google-cloud/datastore';
 import { Storage } from '@google-cloud/storage';
 
 import { FILE_LOG } from './const';
+import { sleep, sample } from './utils';
 
 const datastore = new Datastore();
 const storage = new Storage();
 
 const backupFile = async (logKey, path) => {
+  const bucketFile = storage.bucket('sdrive-001.appspot.com').file(path);
+  const backupBucket = storage.bucket('sdrive-hub-backup')
   try {
-    const bucketFile = storage.bucket('sdrive-001.appspot.com').file(path);
-    const backupBucket = storage.bucket('sdrive-hub-backup')
     await bucketFile.copy(backupBucket, { predefinedAcl: 'private' });
   } catch (error) {
-    console.error(`(${logKey}) Error performBackup: ${path}`, error);
+    await sleep(sample([200, 400, 600]));
+    try {
+      await bucketFile.copy(backupBucket, { predefinedAcl: 'private' });
+    } catch (error) {
+      console.error(`(${logKey}) Error performBackup: ${path}`, error);
+    }
   }
 };
 
@@ -47,7 +53,12 @@ const saveFileLog = async (logKey, fileLog) => {
   try {
     await datastore.save({ key, data });
   } catch (error) {
-    console.error(`(${logKey}) Error saveFileLog: ${path}`, error);
+    await sleep(sample([200, 400, 600]));
+    try {
+      await datastore.save({ key, data });
+    } catch (error) {
+      console.error(`(${logKey}) Error saveFileLog: ${path}`, error);
+    }
   }
 };
 
